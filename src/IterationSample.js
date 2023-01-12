@@ -53,10 +53,8 @@ function IterationSample () {
     // list 클릭시 제거
     const onRemove = (e) => {
       if(e.text === "폭죽"){
-        setInterval(nextTickAnimation, 400)
-        setTimeout(3000)
-        refAnimationInstance.current && refAnimationInstance.current.reset()
-        //clearInterval(intervalId)
+        let inteval = setInterval(nextTickAnimation, 400)
+        //setTimeout(() => clearInterval(inteval), 3000)
       }
       const nextNames = names.filter((name) => name.id !== e.id)
       setNames(nextNames)
