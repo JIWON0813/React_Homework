@@ -13,7 +13,7 @@ const canvasStyles = {
   left: 0
 };
 
-function getAnimationSettings(originXA, originXB) {
+function getFireWorksAnimationSettings(originXA, originXB) {
   return {
     startVelocity: 30,
     spread: 360,
@@ -24,6 +24,22 @@ function getAnimationSettings(originXA, originXB) {
       x: randomInRange(originXA, originXB),
       y: Math.random() - 0.2
     }
+  };
+}
+
+function getSnowAnimationSettings(angle, originX) {
+  return {
+    particleCount: 1,
+    startVelocity: 0,
+    ticks: 200,
+    gravity: 0.3,
+    origin: {
+      x: Math.random(),
+      y: Math.random() * 0.999 - 0.2
+    },
+    colors: ["#ffffff"],
+    shapes: ["circle"],
+    scalar: randomInRange(0.4, 1)
   };
 }
 
@@ -38,6 +54,7 @@ function IterationSample () {
     //const [intervalId, setIntervalId] = useState()
     const idRef = useRef(5)
     const refAnimationInstance = useRef(null)
+    const [divStyle, setDivStyle] = useState({})
   
     const onChange = (e) => setInputText(e.target.value);
     const onAdd = () => {
@@ -52,9 +69,18 @@ function IterationSample () {
   
     // list 클릭시 제거
     const onRemove = (e) => {
+      let inteval = null;
       if(e.text === "폭죽"){
-        let inteval = setInterval(nextTickAnimation, 400)
-        //setTimeout(() => clearInterval(inteval), 3000)
+        inteval = setInterval(fireWorksAnimation, 400);
+        setTimeout(() => clearInterval(inteval), 3000);
+      }
+      else if(e.text === "눈"){
+        inteval = setInterval(snowAnimation, 16);
+        setDivStyle({ backgroundColor : 'lightgrey', width : '100%' , height : '100%'})
+        setTimeout(() => {
+          clearInterval(inteval)
+          setDivStyle({})
+        }, 10000);
       }
       const nextNames = names.filter((name) => name.id !== e.id)
       setNames(nextNames)
@@ -83,10 +109,17 @@ function IterationSample () {
       </li>
     ))
   
-    const nextTickAnimation = useCallback(() => {
+    const fireWorksAnimation = useCallback(() => {
       if (refAnimationInstance.current) {
-        refAnimationInstance.current(getAnimationSettings(0.1, 0.3));
-        refAnimationInstance.current(getAnimationSettings(0.7, 0.9));
+        refAnimationInstance.current(getFireWorksAnimationSettings(0.1, 0.3));
+        refAnimationInstance.current(getFireWorksAnimationSettings(0.7, 0.9));
+      }
+    }, []);
+
+    const snowAnimation = useCallback(() => {
+      if (refAnimationInstance.current) {
+        refAnimationInstance.current(getSnowAnimationSettings(60, 0));
+        refAnimationInstance.current(getSnowAnimationSettings(120, 1));
       }
     }, []);
 
@@ -95,12 +128,12 @@ function IterationSample () {
     }, []);
 
     return (
-      <>
+      <div style={divStyle}>
         <input value={inputText} onChange={onChange} onKeyPress={onKeyPress} />
         <button onClick={onAdd}>추가</button>
         <ul>{namesList}</ul>
         <ReactCanvasConfetti refConfetti={getInstance} style={canvasStyles} />
-      </>
+      </div>
     )
 };
   
